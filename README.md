@@ -10,6 +10,13 @@ A Spring Boot application that provides an AI-powered chat interface using OpenA
 - Cross-origin resource sharing (CORS) enabled for web client integration
 - Configurable AI model and parameters
 
+## Architecture at a Glance
+
+- **Controller layer** (`ChatController`) handles HTTP request/response mapping.
+- **Service layer** (`ChatService`) contains chat business logic and AI orchestration.
+- **DTO layer** (`ChatRequest`, `ChatResponse`) carries API payloads.
+- **AI integration** uses Spring AI `ChatClient` with chat memory advisors.
+
 ## Technologies Used
 
 - **Spring Boot 3.5.14** - Modern Java framework for building production-ready applications
@@ -67,11 +74,34 @@ The application will start on `http://localhost:8080` by default.
 
 ## API Documentation
 
-### Chat Endpoint
+### Chat Endpoints
 
-**POST** `/api/chat`
+**POST** `/api/chat` (Basic Chat)
 
-Send a chat message to the AI model.
+Send a chat message to the AI model and receive plain text response.
+
+**Request Body:**
+```json
+{
+  "message": "Hello, how are you today?"
+}
+```
+
+**Response:**
+```text
+I'm doing well, thank you for asking! How can I help you today?
+```
+
+**Curl Example:**
+```bash
+curl -X POST http://localhost:8080/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Hello, how are you today?"}'
+```
+
+**POST** `/api/chat/chatWithStructure` (Structured Chat with Memory)
+
+Send a chat message with system prompt and conversation memory, and receive structured JSON response with `response` field.
 
 **Request Body:**
 ```json
@@ -82,12 +112,14 @@ Send a chat message to the AI model.
 
 **Response:**
 ```json
-"I'm doing well, thank you for asking! How can I help you today?"
+{
+  "response": "I'm doing well, thank you for asking! How can I help you today?"
+}
 ```
 
 **Curl Example:**
 ```bash
-curl -X POST http://localhost:8080/api/chat \
+curl -X POST http://localhost:8080/api/chat/chatWithStructure \
   -H "Content-Type: application/json" \
   -d '{"message":"Hello, how are you today?"}'
 ```
@@ -102,7 +134,7 @@ spring.application.name=spring-ai-chatbot
 
 # OpenAI API configuration
 spring.ai.openai.api-key=${OPENAI_API_KEY}
-spring.ai.openai.chat.options.model=gpt-4.1-mini
+spring.ai.openai.chat.options.model=gpt-4-turbo
 spring.ai.openai.chat.options.temperature=0.7
 ```
 
